@@ -17,7 +17,9 @@ data World = World {
         -- Coordinates
         player  :: (Position,Angle),
         asteroids :: [(Position,Angle)],
-        score :: Int ,
+        score :: Float ,
+        lastEnemy :: Float,
+        gameTime :: Float,
         gameStatus :: GameStatus
     }
     
@@ -38,5 +40,7 @@ initial seed =
             player = (Point 0 0, Deg 0),
             asteroids = [],
             score = 0,
+            lastEnemy = 0,
+            gameTime = 0,
             gameStatus = On
         }
