@@ -20,7 +20,7 @@ import Config
 
 -- | Time handling
 
-playerSpeed, astroidSpeed , height, width:: Float
+playerSpeed, astroidSpeed , height, width :: Float
 playerSpeed = 3
 astroidSpeed = 2
 shootSpeed = 7
@@ -38,7 +38,8 @@ timeHandler time world
 						lastEnemy = newLastEnemy,
 						shoots = shootMovement world,
 						gameTime = (gameTime world) + time,
-						gameStatus = gameStatusCheck (player world) (asteroids world)
+						gameStatus = gameStatusCheck (player world) (asteroids world),
+						backgroundLayers = updateLayers 4 (backgroundLayers world)
 						}
 						where							
 							newLastEnemy  = if (gameTime world) > (lastEnemy world) + 0.5 
@@ -117,4 +118,17 @@ shootMovement world
 			where 
 				newX = x + cos (degToRad d)*shootSpeed
 				newY = y - sin (degToRad d)*shootSpeed
+
+updateLayers :: Float -> [[(Float,Float)]] -> [[(Float,Float)]]
+updateLayers _ [] = []
+updateLayers n (l:ls) = [update n l] ++ updateLayers (n-1) ls
+	where
+		update:: Float -> [(Float,Float)] -> [(Float,Float)]
+		update _  [] = []
+		update n ((x,y):xs) = [(newX,y)] ++ (update n xs)  
+			where
+				newX 
+					| x+2*n > width = x+2*n-2*width
+					| otherwise = x+2*n
+	
 

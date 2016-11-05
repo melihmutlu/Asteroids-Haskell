@@ -3,6 +3,7 @@
 module Model where
 
 import System.Random
+import Config
 
 -- | Game state
 
@@ -21,7 +22,8 @@ data World = World {
         shoots :: [(Position,Angle)],
         lastEnemy :: Float,
         gameTime :: Float,
-        gameStatus :: GameStatus
+        gameStatus :: GameStatus,
+        backgroundLayers :: [[(Float,Float)]]
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight deriving Eq
@@ -44,5 +46,20 @@ initial seed =
             shoots = [],
             lastEnemy = 0,
             gameTime = 0,
-            gameStatus = On
+            gameStatus = On,
+            backgroundLayers = getLayers seed
         }
+
+getLayers :: Int -> [[(Float,Float)]]
+getLayers seed = [(mkLayer g1),(mkLayer g2),(mkLayer g3),(mkLayer g4)]
+        where
+            gen = mkStdGen seed
+            (g1,g2) = split gen
+            (g3,g4) = split g1
+
+mkLayer :: StdGen -> [(Float,Float)]
+mkLayer gen = zip xList yList
+    where
+        xList = take 20 $ randomRs ((-1)*defaultHorizontalResolution,defaultHorizontalResolution) g1 
+        yList = take 20 $ randomRs ((-1)* defaultVerticalResolution/2, defaultVerticalResolution/2) g2 
+        (g1,g2) = split gen

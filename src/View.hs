@@ -23,13 +23,15 @@ draw horizontalResolution verticalResolution
 					shoots,
 					lastEnemy,
 					gameTime,
-					gameStatus})
+					gameStatus,
+					backgroundLayers})
     = let p1@(Pos x y, Deg d) = player  in
-    	pictures $ [ 
-    			color blue $ rectangleSolid horizontalResolution verticalResolution
+    	pictures $ 
+    			backgroundEffect 4 backgroundLayers
+    			++[ 
     			color green $ rectangleWire horizontalResolution verticalResolution,
-    			translate (x) (y) $ rotate d $ color red $ polygon playerShape,
-    			color white $ text $ show $ length asteroids] 
+    			translate (x) (y) $ rotate d $ color red $ polygon playerShape
+    			] 
     			++ drawAsteroids asteroids
     			++ shootEffect shoots
 
@@ -43,8 +45,17 @@ enemyShape = [((-10),10),(10,10),(10,(-10)),((-10),(-10))]
 drawAsteroids :: [(Position,Angle)] -> [Picture]
 drawAsteroids [] = []
 drawAsteroids (a:as) = let (Pos x y , Deg ang)=a in
-		[translate x y $ rotate ang $ color  (greyN 0.3) $ polygon enemyShape]++ drawAsteroids as
+		[translate x y $ rotate ang $ color (dim cyan) $ polygon enemyShape]++ drawAsteroids as
 
 shootEffect :: [(Position,Angle)] -> [Picture]
 shootEffect [] = []
 shootEffect ((Pos x y ,_):xs) = [translate x y $ color yellow $ circleSolid 2] ++ shootEffect xs 
+
+backgroundEffect :: Float -> [[(Float,Float)]] -> [Picture]
+backgroundEffect _ [] = []
+backgroundEffect n (l:ls) = showEffect n l ++ backgroundEffect (n-1) ls
+	where
+		showEffect :: Float -> [(Float,Float)] -> [Picture]
+		showEffect _ [] = []
+		showEffect n ((x,y):xs) = 
+			[translate x y $ color white $ circleSolid (n/3)] ++ showEffect n xs
