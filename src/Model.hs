@@ -18,6 +18,7 @@ data World = World {
         player  :: (Position,Angle),
         asteroids :: [(Position,Angle)],
         score :: Float ,
+        shoots :: (Position,Angle)
         lastEnemy :: Float,
         gameTime :: Float,
         gameStatus :: GameStatus
@@ -25,7 +26,7 @@ data World = World {
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight deriving Eq
 data MovementAction = NoMovement | Thrust
-data ShootAction    = Shoot      | DontShoot
+data ShootAction    = Shoot      | DontShoot deriving Eq
 data Angle = Deg Float
 data Position = Pos Float Float
 data GameStatus = On | Over deriving Eq
@@ -40,6 +41,7 @@ initial seed =
             player = (Pos 0 0, Deg 0),
             asteroids = [],
             score = 0,
+            shoots = [],
             lastEnemy = 0,
             gameTime = 0,
             gameStatus = On

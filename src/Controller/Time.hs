@@ -23,6 +23,7 @@ import Config
 playerSpeed, astroidSpeed , height, width:: Float
 playerSpeed = 3
 astroidSpeed = 2
+shootSpeed = 4
 height = defaultVerticalResolution/2
 width = defaultHorizontalResolution/2
 
@@ -35,6 +36,7 @@ timeHandler time world
 						player = (Pos newX newY, Deg (newAngle d)),
 						asteroids = moveAsteroids (player world) getAsteroidList,
 						lastEnemy = newLastEnemy,
+						shoots = shootMovement world
 						gameTime = (gameTime world) + time,
 						gameStatus = gameStatusCheck (player world) (asteroids world)
 						}
@@ -90,4 +92,17 @@ gameStatusCheck player (a:as)
 distance :: (Position,Angle) -> (Position,Angle) -> Float
 distance (Pos px py, _) (Pos ax ay,_) = 
 		sqrt ((px-ax)*(px-ax) + (py-ay)*(py-ay)) 
-		
+
+shootMovement :: World -> [(Position,Angle)]
+shootMovement world 
+	| action == move shoots ++ player
+	| otherwise = move shoots
+	where
+		player = player world
+		action = shootAction world
+		shoots = shoots world 
+		move [] = []
+		move ((Pos x y, Deg d):xs) = (Pos newX newY , Deg d) ++ move xs
+			where 
+				newX = x + cos (degToRad d)*shootSpeed
+				newY = y - sin (degToRad d)*shootSpeed
