@@ -40,7 +40,7 @@ initial seed =
             rotateAction = NoRotation,
             movementAction = NoMovement,
             shootAction = DontShoot,
-            player = (Pos 0 0, Deg 0),
+            player = newPlayer $ mkStdGen seed,
             asteroids = [],
             score = 0,
             shoots = [],
@@ -49,6 +49,15 @@ initial seed =
             gameStatus = On,
             backgroundLayers = getLayers seed
         }
+
+newPlayer :: StdGen -> (Position,Angle)
+newPlayer gen = (Pos x y, Deg ang)
+        where
+            (rnd1,rnd2) = split  gen
+            (xGen,yGen) = split rnd1
+            (y:_) = randomRs ((-1)*defaultVerticalResolution/2, defaultVerticalResolution/2) xGen
+            (x:_) = randomRs ((-1)*defaultHorizontalResolution/2, defaultHorizontalResolution/2) yGen
+            (ang:_) = randomRs (0,360) rnd2
 
 getLayers :: Int -> [[(Float,Float)]]
 getLayers seed = [(mkLayer g1),(mkLayer g2),(mkLayer g3),(mkLayer g4)]

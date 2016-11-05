@@ -32,12 +32,13 @@ draw horizontalResolution verticalResolution
     			color green $ rectangleWire horizontalResolution verticalResolution,
     			translate (x) (y) $ rotate d $ color red $ polygon playerShape
     			] 
+    			++ tailEffect player movementAction
     			++ drawAsteroids asteroids
     			++ shootEffect shoots
 
 
 playerShape :: Path
-playerShape  = [(0,0),((-17),7),((-17),(-7))]
+playerShape  = [(0,0),((-15),5),((-15),(-5))]
 
 enemyShape :: Path
 enemyShape = [((-10),10),(10,10),(10,(-10)),((-10),(-10))]
@@ -59,3 +60,17 @@ backgroundEffect n (l:ls) = showEffect n l ++ backgroundEffect (n-1) ls
 		showEffect _ [] = []
 		showEffect n ((x,y):xs) = 
 			[translate x y $ color white $ circleSolid (n/3)] ++ showEffect n xs
+
+tailEffect :: (Position,Angle) -> MovementAction -> [Picture]
+tailEffect (Pos px py, Deg d) action 
+	| action == Thrust = let 
+							x = px - cos (degToRad d)*18
+							y = py + sin (degToRad d)*18
+						in
+						 [ translate x y $ color orange $ circleSolid 5,
+							translate (x+1) (y+1) $ color blue $ circleSolid 5,
+							translate (x+1.5) (y+1.5) $ color chartreuse $ circleSolid 5,
+							translate (x-1) (y-1) $ color blue $ circleSolid 5,
+							translate (x-1.5) (y-1.5) $ color aquamarine $ circleSolid 5]
+						
+	| otherwise = []
