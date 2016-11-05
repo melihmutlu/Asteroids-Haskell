@@ -26,7 +26,7 @@ draw horizontalResolution verticalResolution
     = let p1@(Point x y, Deg d) = player  in
     	pictures $ [ 
     			translate (x) (y) $ rotate d $ color red $ polygon playerShape,
-    			color white $ text $ show gameTime] ++ drawAsteroids asteroids
+    			color white $ text $ show $ length asteroids] ++ drawAsteroids asteroids
 
 
 playerShape :: Path

@@ -21,15 +21,16 @@ import Config
 
 playerSpeed, astroidSpeed , height, width:: Float
 playerSpeed = 3
-astroidSpeed = 1.5
+astroidSpeed = 1.8
 height = defaultVerticalResolution/2
 width = defaultHorizontalResolution/2
 
 timeHandler :: Float -> World -> World
 timeHandler time world = world{
-						rndGen = mkStdGen $ round (gameTime world),
+						rndGen = fst $ split $ (rndGen world) ,
 						player = (Point newX newY, Deg (newAngle d)),
-						asteroids = getAsteroidList,
+						asteroids = moveAsteroids (player world) getAsteroidList,
+						lastEnemy = newLastEnemy,
 						gameTime = (gameTime world) + time
 						}
 						where
@@ -37,6 +38,10 @@ timeHandler time world = world{
 							newX = x + cos (degToRad d)*playerSpeed
 							newY = y - sin (degToRad d)*playerSpeed
 							
+							newLastEnemy  = if (gameTime world) > (lastEnemy world) + 0.5 
+								then (gameTime world) + time
+								else lastEnemy world
+
 							newAngle :: Float -> Float
 							newAngle d
 								| (rotateAction world) == RotateLeft =  if d-5 < 0 then 365-d else d-5
@@ -46,7 +51,7 @@ timeHandler time world = world{
 							getAsteroidList :: [(Position,Angle)]
 							getAsteroidList 
 								| (gameTime world) > (lastEnemy world) + 0.5
-									= (asteroids world) ++ [ createAsteroid world ]
+									=  asteroids world ++ [ createAsteroid world ]
 								| otherwise = asteroids world
 
 
@@ -58,3 +63,13 @@ createAsteroid world = (Point x y, Deg ang)
 							(x:_) = randomRs ((-1)*width, width) xGen
 							(y:_) = randomRs ((-1)*height, height) yGen
 							(ang:_) = randomRs (0,360) rnd2
+
+moveAsteroids :: (Position,Angle) -> [(Position,Angle)] -> [(Position,Angle)]
+moveAsteroids _ [] = []
+moveAsteroids player@(Point px py , _) (a:as) = 
+								[(Point (x+vx) (y+vy), Deg d)] ++ moveAsteroids player as
+							where
+								(Point x y , Deg d) = a
+								h = sqrt $ (px-x)*(px-x) + (py-y)*(py-y)
+								vx = ((px-x)/h) * astroidSpeed
+								vy = ((py-y)/h) * astroidSpeed
