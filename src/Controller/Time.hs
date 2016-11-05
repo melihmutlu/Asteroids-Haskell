@@ -73,3 +73,35 @@ moveAsteroids player@(Point px py , _) (a:as) =
 								h = sqrt $ (px-x)*(px-x) + (py-y)*(py-y)
 								vx = ((px-x)/h) * astroidSpeed
 								vy = ((py-y)/h) * astroidSpeed
+
+
+gameStatusCheck :: World -> GameStatus 
+gameStatusCheck world
+	| isCollision (player world) (asteroids world) = Over
+	| otherwise = On
+
+
+isCollision :: (Position,Angle) -> [(Position,Angle)] -> Bool
+isCollision _ [] = True
+isCollision player@(Point px py, _) ((Point ax ay ,_):as) = 
+		checkIntersection player enemy && isCollision player as
+	where
+		player = playerPath px py
+		enemy = enemyPath ax ay
+
+checkIntersection :: Path -> Path -> Bool
+checkIntersection [p] [a] = False
+checkIntersection (p1:ps) (a1: as) =
+		if  intersectSegSeg p1 p2 a1 a2 == Nothing then
+			checkIntersection ps as
+		else
+			True
+	where 
+		(p2:_) = ps
+		(a2:_) = as
+
+playerPath :: Float -> Float -> Path
+playerPath x y = [(x,y),(x+10,y+15),(x,y+15+35),(x-10,y+15)]
+
+enemyPath :: Point -> Float -> Path
+enemyPath x y= [(x,y), (x-18,y-7), (x-18,y-7-12), (x,y-2*7-12), (x+18,y-7-12), (x+18,y-7)]
