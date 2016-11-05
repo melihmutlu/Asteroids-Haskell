@@ -26,6 +26,7 @@ draw horizontalResolution verticalResolution
 					gameStatus})
     = let p1@(Pos x y, Deg d) = player  in
     	pictures $ [ 
+    			color blue $ rectangleSolid horizontalResolution verticalResolution
     			color green $ rectangleWire horizontalResolution verticalResolution,
     			translate (x) (y) $ rotate d $ color red $ polygon playerShape,
     			color white $ text $ show $ length asteroids] 
