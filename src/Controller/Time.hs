@@ -23,7 +23,7 @@ import Config
 playerSpeed, astroidSpeed , height, width:: Float
 playerSpeed = 3
 astroidSpeed = 2
-shootSpeed = 4
+shootSpeed = 7
 height = defaultVerticalResolution/2
 width = defaultHorizontalResolution/2
 
@@ -33,27 +33,17 @@ timeHandler time world
 	| otherwise 			   = 
 					world{
 						rndGen = fst $ split $ (rndGen world) ,
-						player = (Pos newX newY, Deg (newAngle d)),
+						player = updatePosition world,
 						asteroids = moveAsteroids (player world) getAsteroidList,
 						lastEnemy = newLastEnemy,
-						shoots = shootMovement world
+						shoots = shootMovement world,
 						gameTime = (gameTime world) + time,
 						gameStatus = gameStatusCheck (player world) (asteroids world)
 						}
-						where
-							(Pos x y , Deg d) = player world
-							newX = x + cos (degToRad d)*playerSpeed
-							newY = y - sin (degToRad d)*playerSpeed
-							
+						where							
 							newLastEnemy  = if (gameTime world) > (lastEnemy world) + 0.5 
 								then (gameTime world) + time
 								else lastEnemy world
-
-							newAngle :: Float -> Float
-							newAngle d
-								| (rotateAction world) == RotateLeft =  if d-5 < 0 then 365-d else d-5
-								| (rotateAction world) == RotateRight = if d+5 > 380 then d-355 else d+5
-								| otherwise = d
 
 							getAsteroidList :: [(Position,Angle)]
 							getAsteroidList 
@@ -61,6 +51,26 @@ timeHandler time world
 									=  asteroids world ++ [ createAsteroid world ]
 								| otherwise = asteroids world
 
+
+updatePosition :: World -> (Position,Angle)
+updatePosition world 	 
+					| movementAction world == Thrust = (Pos (newX 2.5) (newY 2.5), Deg (newAngle d))
+					| otherwise = (Pos (newX 1) (newY 1), Deg (newAngle d))
+					where
+						(Pos x y, Deg d) = player world
+						newX factor	
+							| x + cos (degToRad d)*playerSpeed*factor >= width = x
+							| x + cos (degToRad d)*playerSpeed*factor <= (-1)*width = x
+							|otherwise = x + cos (degToRad d)*playerSpeed*factor
+						newY factor	
+							| y - sin (degToRad d)*playerSpeed*factor >= height = y
+							| y - sin (degToRad d)*playerSpeed*factor <= (-1)*height = y
+							|otherwise = y - sin (degToRad d)*playerSpeed*factor
+						newAngle :: Float -> Float
+						newAngle d
+							| (rotateAction world) == RotateLeft =  if d-5 < 0 then 365-d else d-5
+							| (rotateAction world) == RotateRight = if d+5 > 380 then d-355 else d+5
+							| otherwise = d
 
 createAsteroid :: World -> (Position,Angle)
 createAsteroid world = (Pos x y, Deg ang)
@@ -74,7 +84,7 @@ createAsteroid world = (Pos x y, Deg ang)
 moveAsteroids :: (Position,Angle) -> [(Position,Angle)] -> [(Position,Angle)]
 moveAsteroids _ [] = []
 moveAsteroids player@(Pos px py , _) (a:as) = 
-								[(Pos (x+vx) (y+vy), Deg (d+10))] ++ moveAsteroids player as
+								[(Pos (x+vx) (y+vy), Deg (d+15))] ++ moveAsteroids player as
 							where
 								(Pos x y , Deg d) = a
 								h = sqrt $ (px-x)*(px-x) + (py-y)*(py-y)
@@ -95,14 +105,16 @@ distance (Pos px py, _) (Pos ax ay,_) =
 
 shootMovement :: World -> [(Position,Angle)]
 shootMovement world 
-	| action == move shoots ++ player
-	| otherwise = move shoots
+	| action == Shoot  = move firelist ++ [(Pos px py, Deg d)]
+	| otherwise = move firelist
 	where
-		player = player world
+		(Pos px py , Deg d) = player world
 		action = shootAction world
-		shoots = shoots world 
+		firelist = shoots world 
+		move :: [(Position,Angle)] -> [(Position,Angle)]
 		move [] = []
-		move ((Pos x y, Deg d):xs) = (Pos newX newY , Deg d) ++ move xs
+		move ((Pos x y, Deg d):xs) = [(Pos newX newY , Deg d)] ++ move xs
 			where 
 				newX = x + cos (degToRad d)*shootSpeed
 				newY = y - sin (degToRad d)*shootSpeed
+

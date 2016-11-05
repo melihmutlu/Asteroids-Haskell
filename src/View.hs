@@ -26,14 +26,15 @@ draw horizontalResolution verticalResolution
 					gameStatus})
     = let p1@(Pos x y, Deg d) = player  in
     	pictures $ [ 
+    			color green $ rectangleWire horizontalResolution verticalResolution,
     			translate (x) (y) $ rotate d $ color red $ polygon playerShape,
     			color white $ text $ show $ length asteroids] 
     			++ drawAsteroids asteroids
-    			++ shootEffect shootAction
+    			++ shootEffect shoots
 
 
 playerShape :: Path
-playerShape  = [(17,0),(0,7),(0,(-7))]
+playerShape  = [(0,0),((-17),7),((-17),(-7))]
 
 enemyShape :: Path
 enemyShape = [((-10),10),(10,10),(10,(-10)),((-10),(-10))]
@@ -43,6 +44,6 @@ drawAsteroids [] = []
 drawAsteroids (a:as) = let (Pos x y , Deg ang)=a in
 		[translate x y $ rotate ang $ color  (greyN 0.3) $ polygon enemyShape]++ drawAsteroids as
 
-shootAction :: [(Position,Angle)] -> [Picture]
-shootAction [] = []
-shootAction ((Pos x y ,_):xs) = translate x y $ color yellow $ circle 3 ++ shootAction xs 
+shootEffect :: [(Position,Angle)] -> [Picture]
+shootEffect [] = []
+shootEffect ((Pos x y ,_):xs) = [translate x y $ color yellow $ circleSolid 2] ++ shootEffect xs 

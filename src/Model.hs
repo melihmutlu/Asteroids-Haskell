@@ -17,15 +17,15 @@ data World = World {
         -- Coordinates
         player  :: (Position,Angle),
         asteroids :: [(Position,Angle)],
-        score :: Float ,
-        shoots :: (Position,Angle)
+        score :: Int ,
+        shoots :: [(Position,Angle)],
         lastEnemy :: Float,
         gameTime :: Float,
         gameStatus :: GameStatus
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight deriving Eq
-data MovementAction = NoMovement | Thrust
+data MovementAction = NoMovement | Thrust deriving Eq
 data ShootAction    = Shoot      | DontShoot deriving Eq
 data Angle = Deg Float
 data Position = Pos Float Float
