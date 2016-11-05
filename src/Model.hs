@@ -27,8 +27,8 @@ data RotateAction   = NoRotation | RotateLeft | RotateRight deriving Eq
 data MovementAction = NoMovement | Thrust
 data ShootAction    = Shoot      | DontShoot
 data Angle = Deg Float
-data Position = Point Float Float
-data GameStatus = On | Over
+data Position = Pos Float Float
+data GameStatus = On | Over deriving Eq
 
 initial :: Int -> World
 initial seed =
@@ -37,7 +37,7 @@ initial seed =
             rotateAction = NoRotation,
             movementAction = NoMovement,
             shootAction = DontShoot,
-            player = (Point 0 0, Deg 0),
+            player = (Pos 0 0, Deg 0),
             asteroids = [],
             score = 0,
             lastEnemy = 0,

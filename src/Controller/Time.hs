@@ -11,6 +11,7 @@ import Data.List
 
 import Graphics.Gloss
 import Graphics.Gloss.Geometry.Angle
+import Graphics.Gloss.Data.Point
 
 import System.Random
 
@@ -21,20 +22,24 @@ import Config
 
 playerSpeed, astroidSpeed , height, width:: Float
 playerSpeed = 3
-astroidSpeed = 1.8
+astroidSpeed = 2
 height = defaultVerticalResolution/2
 width = defaultHorizontalResolution/2
 
 timeHandler :: Float -> World -> World
-timeHandler time world = world{
+timeHandler time world 
+	| gameStatus world == Over = initial $ round (gameTime world) 
+	| otherwise 			   = 
+					world{
 						rndGen = fst $ split $ (rndGen world) ,
-						player = (Point newX newY, Deg (newAngle d)),
+						player = (Pos newX newY, Deg (newAngle d)),
 						asteroids = moveAsteroids (player world) getAsteroidList,
 						lastEnemy = newLastEnemy,
-						gameTime = (gameTime world) + time
+						gameTime = (gameTime world) + time,
+						gameStatus = gameStatusCheck (player world) (asteroids world)
 						}
 						where
-							(Point x y , Deg d) = player world
+							(Pos x y , Deg d) = player world
 							newX = x + cos (degToRad d)*playerSpeed
 							newY = y - sin (degToRad d)*playerSpeed
 							
@@ -56,7 +61,7 @@ timeHandler time world = world{
 
 
 createAsteroid :: World -> (Position,Angle)
-createAsteroid world = (Point x y, Deg ang)
+createAsteroid world = (Pos x y, Deg ang)
 						where
 							(rnd1,rnd2) = split (rndGen world) 
 							(xGen,yGen) = split rnd1
@@ -66,42 +71,23 @@ createAsteroid world = (Point x y, Deg ang)
 
 moveAsteroids :: (Position,Angle) -> [(Position,Angle)] -> [(Position,Angle)]
 moveAsteroids _ [] = []
-moveAsteroids player@(Point px py , _) (a:as) = 
-								[(Point (x+vx) (y+vy), Deg d)] ++ moveAsteroids player as
+moveAsteroids player@(Pos px py , _) (a:as) = 
+								[(Pos (x+vx) (y+vy), Deg (d+10))] ++ moveAsteroids player as
 							where
-								(Point x y , Deg d) = a
+								(Pos x y , Deg d) = a
 								h = sqrt $ (px-x)*(px-x) + (py-y)*(py-y)
 								vx = ((px-x)/h) * astroidSpeed
 								vy = ((py-y)/h) * astroidSpeed
 
 
-gameStatusCheck :: World -> GameStatus 
-gameStatusCheck world
-	| isCollision (player world) (asteroids world) = Over
-	| otherwise = On
+gameStatusCheck :: (Position,Angle) -> [(Position,Angle)] -> GameStatus 
+gameStatusCheck _ [] = On
+gameStatusCheck player (a:as)
+	| (distance player a) <= 14 = Over
+	| otherwise = gameStatusCheck player as
 
 
-isCollision :: (Position,Angle) -> [(Position,Angle)] -> Bool
-isCollision _ [] = True
-isCollision player@(Point px py, _) ((Point ax ay ,_):as) = 
-		checkIntersection player enemy && isCollision player as
-	where
-		player = playerPath px py
-		enemy = enemyPath ax ay
-
-checkIntersection :: Path -> Path -> Bool
-checkIntersection [p] [a] = False
-checkIntersection (p1:ps) (a1: as) =
-		if  intersectSegSeg p1 p2 a1 a2 == Nothing then
-			checkIntersection ps as
-		else
-			True
-	where 
-		(p2:_) = ps
-		(a2:_) = as
-
-playerPath :: Float -> Float -> Path
-playerPath x y = [(x,y),(x+10,y+15),(x,y+15+35),(x-10,y+15)]
-
-enemyPath :: Point -> Float -> Path
-enemyPath x y= [(x,y), (x-18,y-7), (x-18,y-7-12), (x,y-2*7-12), (x+18,y-7-12), (x+18,y-7)]
+distance :: (Position,Angle) -> (Position,Angle) -> Float
+distance (Pos px py, _) (Pos ax ay,_) = 
+		sqrt ((px-ax)*(px-ax) + (py-ay)*(py-ay)) 
+		
