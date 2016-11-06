@@ -31,9 +31,11 @@ draw horizontalResolution verticalResolution
     			++ tailEffect player movementAction
     			++[ 
     			color green $ rectangleWire horizontalResolution verticalResolution,
-    			translate (x) (y) $ rotate d $ color red $ polygon playerShape
-    			text $ show $ score world
-    			] 
+    			translate (x) (y) $ rotate d $ color red $ polygon playerShape,
+    			translate ((-1)*horizontalResolution/2+20) (verticalResolution/2-40)
+    				$ scale 0.2 0.2
+    				$ color white $ text $ "Score : " ++ show score
+    			]
     			++ drawAsteroids asteroids
     			++ shootEffect shoots
 

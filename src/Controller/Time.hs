@@ -34,8 +34,8 @@ timeHandler time world
 					world{
 						rndGen = fst $ split $ (rndGen world) ,
 						player = updatePosition world,
-						asteroids = isEnemyShot world $ newAsteroidList
-						score  = (score world) + (length asteroids world) - (length newAsteroidList),
+						asteroids = newAsteroidList,
+						score  = (score world) + (length $ movedAsteroidList) - (length newAsteroidList),
 						lastEnemy = newLastEnemy,
 						shoots = shootMovement world,
 						gameTime = (gameTime world) + time,
@@ -46,7 +46,9 @@ timeHandler time world
 							newLastEnemy  = if (gameTime world) > (lastEnemy world) + 0.5 
 								then (gameTime world) + time
 								else lastEnemy world
-							newAsteroidList = moveAsteroids (player world) getAsteroidList
+							
+							movedAsteroidList = moveAsteroids (player world) getAsteroidList
+							newAsteroidList = isEnemyShot world $ movedAsteroidList
 
 							getAsteroidList :: [(Position,Angle)]
 							getAsteroidList 
