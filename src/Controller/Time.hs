@@ -22,8 +22,8 @@ import Config
 
 playerSpeed, astroidSpeed , height, width :: Float
 playerSpeed = 3
-astroidSpeed = 2
-shootSpeed = 7
+astroidSpeed = 1.5
+shootSpeed = 10
 height = defaultVerticalResolution/2
 width = defaultHorizontalResolution/2
 
@@ -85,7 +85,7 @@ createAsteroid world = (Pos x y, Deg ang)
 moveAsteroids :: (Position,Angle) -> [(Position,Angle)] -> [(Position,Angle)]
 moveAsteroids _ [] = []
 moveAsteroids player@(Pos px py , _) (a:as) = 
-								[(Pos (x+vx) (y+vy), Deg (d+15))] ++ moveAsteroids player as
+								[(Pos (x+vx) (y+vy), Deg (d+18))] ++ moveAsteroids player as
 							where
 								(Pos x y , Deg d) = a
 								h = sqrt $ (px-x)*(px-x) + (py-y)*(py-y)
@@ -114,7 +114,10 @@ shootMovement world
 		firelist = shoots world 
 		move :: [(Position,Angle)] -> [(Position,Angle)]
 		move [] = []
-		move ((Pos x y, Deg d):xs) = [(Pos newX newY , Deg d)] ++ move xs
+		move ((Pos x y, Deg d):xs)
+			| newX > width || newX < (-1)*width =  move xs
+			| newY > height || newY < (-1)*height = move xs
+			| otherwise =  [(Pos newX newY , Deg d)] ++ move xs
 			where 
 				newX = x + cos (degToRad d)*shootSpeed
 				newY = y - sin (degToRad d)*shootSpeed

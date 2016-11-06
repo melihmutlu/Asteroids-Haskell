@@ -64,13 +64,13 @@ backgroundEffect n (l:ls) = showEffect n l ++ backgroundEffect (n-1) ls
 tailEffect :: (Position,Angle) -> MovementAction -> [Picture]
 tailEffect (Pos px py, Deg d) action 
 	| action == Thrust = let 
-							x = px - cos (degToRad d)*18
-							y = py + sin (degToRad d)*18
+							x = px - cos (degToRad d)*20
+							y = py + sin (degToRad d)*20
 						in
 						 [ translate x y $ color orange $ circleSolid 5,
 							translate (x+1) (y+1) $ color blue $ circleSolid 5,
 							translate (x+1.5) (y+1.5) $ color chartreuse $ circleSolid 5,
-							translate (x-1) (y-1) $ color blue $ circleSolid 5,
+							translate (x-1) (y-1) $ color rose $ circleSolid 5,
 							translate (x-1.5) (y-1.5) $ color aquamarine $ circleSolid 5]
 						
 	| otherwise = []
