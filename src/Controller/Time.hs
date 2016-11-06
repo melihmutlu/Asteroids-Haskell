@@ -13,7 +13,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Geometry.Angle
 import Graphics.Gloss.Data.Point
 
-import System.randomRs
+import System.Random
 
 import Model
 import Config
