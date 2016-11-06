@@ -96,7 +96,7 @@ moveAsteroids player@(Pos px py , _) (a:as) =
 gameStatusCheck :: (Position,Angle) -> [(Position,Angle)] -> GameStatus 
 gameStatusCheck _ [] = On
 gameStatusCheck player (a:as)
-	| (distance player a) <= 14 = Over
+	| (distance player a) <= 16 = Over
 	| otherwise = gameStatusCheck player as
 
 
@@ -135,3 +135,14 @@ updateLayers n (l:ls) = [update n l] ++ updateLayers (n-1) ls
 					| otherwise = x+2*n
 	
 
+isEnemyShot :: World -> [(Position,Angle)] -> [(Position,Angle)]
+isEnemyShot _ [] = []
+isEnemyShot world (a:as) 
+	| checkCondition (shoots world) a = isEnemyShot world as
+	| otherwise = [a] ++ isEnemyShot world as
+	where
+		checkCondition :: [(Position,Angle)] -> (Position,Angle) -> Bool
+		checkCondition [] _ = False
+		checkCondition (f:fs) asteroid 
+			| (distance f asteroid) <= 16 = True
+			| otherwise = checkCondition fs asteroid
