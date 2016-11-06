@@ -20,6 +20,8 @@ draw horizontalResolution verticalResolution
 					player,
 					asteroids,
 					score,
+					multiplier,
+					multiplierParticles,
 					shoots,
 					lastEnemy,
 					gameTime,
@@ -77,3 +79,8 @@ tailEffect (Pos px py, Deg d) action
 							translate (x-1.5) (y-1.5) $ color aquamarine $ circleSolid 5]
 						
 	| otherwise = []
+
+showMultipliers :: [Position] -> [Picture]
+showMultipliers [] = []
+showMultipliers ((Pos x y):ms) = 
+	[ translate x y $ color blue $ circleSolid 5] ++ showMultipliers ms

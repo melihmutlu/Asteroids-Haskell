@@ -21,6 +21,8 @@ data World = World {
         score :: Int ,
         shoots :: [(Position,Angle)],
         lastEnemy :: Float,
+        multiplier :: Int,
+        multiplierParticles :: [Position],
         gameTime :: Float,
         gameStatus :: GameStatus,
         backgroundLayers :: [[(Float,Float)]]
@@ -43,6 +45,8 @@ initial seed =
             player = newPlayer $ mkStdGen seed,
             asteroids = [],
             score = 0,
+            multiplier = 1,
+            multiplierParticles = [],
             shoots = [],
             lastEnemy = 0,
             gameTime = 0,

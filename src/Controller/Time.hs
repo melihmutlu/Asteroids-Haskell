@@ -78,7 +78,7 @@ updatePosition world
 							| otherwise = d
 
 createAsteroid :: World -> (Position,Angle)
-createAsteroid world = (Pos x y, Deg ang)
+createAsteroid world = (muliplierParticle world) ++ [(Pos x y)]
 						where
 							(rnd1,rnd2) = split (rndGen world) 
 							(xGen,yGen) = split rnd1
@@ -96,6 +96,18 @@ moveAsteroids player@(Pos px py , _) (a:as) =
 								vx = ((px-x)/h) * astroidSpeed
 								vy = ((py-y)/h) * astroidSpeed
 
+createMultiplier :: World -> [(Position)]
+createMultiplier world =(Pos x y)
+						where
+							(rnd1,rnd2) = split (rndGen world) 
+							(x:_) = randomRs ((-1)*width, width) rnd1
+							(y:_) = randomRs ((-1)*height, height) rnd2
+
+multiplierCheck :: (Position,Angle) -> [Position] -> [Position]
+multiplierCheck _ [] = []
+multiplierCheck player (m:ms) 
+	| distance player m <= 5 = multiplierCheck player ms
+	| otherwise = [m] ++ multiplierCheck player ms
 
 gameStatusCheck :: (Position,Angle) -> [(Position,Angle)] -> GameStatus 
 gameStatusCheck _ [] = On
