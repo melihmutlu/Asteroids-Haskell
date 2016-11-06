@@ -24,6 +24,7 @@ draw horizontalResolution verticalResolution
 					multiplierParticles,
 					shoots,
 					lastEnemy,
+					lastMultiplier,
 					gameTime,
 					gameStatus,
 					backgroundLayers})
@@ -37,8 +38,10 @@ draw horizontalResolution verticalResolution
     			translate ((-1)*horizontalResolution/2+20) (verticalResolution/2-40)
     				$ scale 0.2 0.2
     				$ color white $ text $ "Score : " ++ show score
+    					++ "     Multiplier : x" ++ show multiplier
     			]
     			++ drawAsteroids asteroids
+    			++ showMultipliers multiplierParticles
     			++ shootEffect shoots
 
 
@@ -83,4 +86,4 @@ tailEffect (Pos px py, Deg d) action
 showMultipliers :: [Position] -> [Picture]
 showMultipliers [] = []
 showMultipliers ((Pos x y):ms) = 
-	[ translate x y $ color blue $ circleSolid 5] ++ showMultipliers ms
+	[ translate x y $ color blue $ circleSolid 10] ++ showMultipliers ms

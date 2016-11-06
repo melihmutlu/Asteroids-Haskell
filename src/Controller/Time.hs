@@ -35,20 +35,40 @@ timeHandler time world
 						rndGen = fst $ split $ (rndGen world) ,
 						player = updatePosition world,
 						asteroids = newAsteroidList,
-						score  = (score world) + (length $ movedAsteroidList) - (length newAsteroidList),
+						score  = (score world) 
+							+ ((length $ movedAsteroidList) - (length newAsteroidList))*(multiplier world),
 						lastEnemy = newLastEnemy,
+						lastMultiplier = newLastMult,
+						multiplier = newMultiplier,
+						multiplierParticles = isMultShot world $ newMultList,
 						shoots = shootMovement world,
 						gameTime = (gameTime world) + time,
 						gameStatus = gameStatusCheck (player world) (asteroids world),
 						backgroundLayers = updateLayers 4 (backgroundLayers world)
 						}
 						where							
-							newLastEnemy  = if (gameTime world) > (lastEnemy world) + 0.5 
-								then (gameTime world) + time
-								else lastEnemy world
+							newLastEnemy  
+								|(gameTime world) > (lastEnemy world) + 0.5 =
+									(gameTime world) + time
+								| otherwise = lastEnemy world
+
+							newLastMult  
+								| (gameTime world) > (lastMultiplier world) + 1 
+									= (gameTime world) + time
+								| otherwise = lastMultiplier world
 							
 							movedAsteroidList = moveAsteroids (player world) getAsteroidList
 							newAsteroidList = isEnemyShot world $ movedAsteroidList
+
+							newMultList = multiplierCheck (player world) getMultiplierList
+							newMultiplier = (multiplier world) + (length getMultiplierList)
+											- (length newMultList)
+
+							getMultiplierList :: [(Position)]
+							getMultiplierList
+								| (gameTime world) > (lastMultiplier world) + 1
+									=  createMultiplier world
+								| otherwise = multiplierParticles world
 
 							getAsteroidList :: [(Position,Angle)]
 							getAsteroidList 
@@ -78,7 +98,7 @@ updatePosition world
 							| otherwise = d
 
 createAsteroid :: World -> (Position,Angle)
-createAsteroid world = (muliplierParticle world) ++ [(Pos x y)]
+createAsteroid world = (Pos x y, Deg ang)
 						where
 							(rnd1,rnd2) = split (rndGen world) 
 							(xGen,yGen) = split rnd1
@@ -97,7 +117,7 @@ moveAsteroids player@(Pos px py , _) (a:as) =
 								vy = ((py-y)/h) * astroidSpeed
 
 createMultiplier :: World -> [(Position)]
-createMultiplier world =(Pos x y)
+createMultiplier world =(multiplierParticles world) ++ [(Pos x y)]
 						where
 							(rnd1,rnd2) = split (rndGen world) 
 							(x:_) = randomRs ((-1)*width, width) rnd1
@@ -106,7 +126,7 @@ createMultiplier world =(Pos x y)
 multiplierCheck :: (Position,Angle) -> [Position] -> [Position]
 multiplierCheck _ [] = []
 multiplierCheck player (m:ms) 
-	| distance player m <= 5 = multiplierCheck player ms
+	| distance player (m, Deg 0) <= 10 = multiplierCheck player ms
 	| otherwise = [m] ++ multiplierCheck player ms
 
 gameStatusCheck :: (Position,Angle) -> [(Position,Angle)] -> GameStatus 
@@ -149,7 +169,18 @@ updateLayers n (l:ls) = [update n l] ++ updateLayers (n-1) ls
 				newX 
 					| x+2*n > width = x+2*n-2*width
 					| otherwise = x+2*n
-	
+
+isMultShot :: World -> [(Position)] -> [(Position)]
+isMultShot _ [] = []
+isMultShot world (a:as) 
+	| checkCondition (shoots world) a = isMultShot world as
+	| otherwise = [a] ++ isMultShot world as
+	where
+		checkCondition :: [(Position,Angle)] -> (Position) -> Bool
+		checkCondition [] _ = False
+		checkCondition (f:fs) mult 
+			| (distance f (mult, Deg 0)) <= 10 = True
+			| otherwise = checkCondition fs mult	
 
 isEnemyShot :: World -> [(Position,Angle)] -> [(Position,Angle)]
 isEnemyShot _ [] = []

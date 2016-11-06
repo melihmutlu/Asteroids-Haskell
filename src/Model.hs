@@ -21,6 +21,7 @@ data World = World {
         score :: Int ,
         shoots :: [(Position,Angle)],
         lastEnemy :: Float,
+        lastMultiplier :: Float,
         multiplier :: Int,
         multiplierParticles :: [Position],
         gameTime :: Float,
@@ -49,6 +50,7 @@ initial seed =
             multiplierParticles = [],
             shoots = [],
             lastEnemy = 0,
+            lastMultiplier=0,
             gameTime = 0,
             gameStatus = On,
             backgroundLayers = getLayers seed
