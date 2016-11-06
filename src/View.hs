@@ -28,11 +28,12 @@ draw horizontalResolution verticalResolution
     = let p1@(Pos x y, Deg d) = player  in
     	pictures $ 
     			backgroundEffect 4 backgroundLayers
+    			++ tailEffect player movementAction
     			++[ 
     			color green $ rectangleWire horizontalResolution verticalResolution,
     			translate (x) (y) $ rotate d $ color red $ polygon playerShape
+    			text $ show $ score world
     			] 
-    			++ tailEffect player movementAction
     			++ drawAsteroids asteroids
     			++ shootEffect shoots
 
