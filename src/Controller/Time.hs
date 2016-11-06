@@ -34,7 +34,7 @@ timeHandler time world
 					world{
 						rndGen = fst $ split $ (rndGen world) ,
 						player = updatePosition world,
-						asteroids = moveAsteroids (player world) getAsteroidList,
+						asteroids = isEnemyShot world $ moveAsteroids (player world) getAsteroidList,
 						lastEnemy = newLastEnemy,
 						shoots = shootMovement world,
 						gameTime = (gameTime world) + time,
@@ -96,7 +96,7 @@ moveAsteroids player@(Pos px py , _) (a:as) =
 gameStatusCheck :: (Position,Angle) -> [(Position,Angle)] -> GameStatus 
 gameStatusCheck _ [] = On
 gameStatusCheck player (a:as)
-	| (distance player a) <= 16 = Over
+	| (distance player a) <= 17 = Over
 	| otherwise = gameStatusCheck player as
 
 
@@ -144,5 +144,5 @@ isEnemyShot world (a:as)
 		checkCondition :: [(Position,Angle)] -> (Position,Angle) -> Bool
 		checkCondition [] _ = False
 		checkCondition (f:fs) asteroid 
-			| (distance f asteroid) <= 16 = True
+			| (distance f asteroid) <= 17 = True
 			| otherwise = checkCondition fs asteroid
